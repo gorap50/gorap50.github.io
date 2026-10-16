@@ -237,6 +237,13 @@ form .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-note{font-size:.85rem;color:var(--faint);margin:10px 0 0}
 .form-status{margin-top:14px;padding:12px 14px;border-radius:10px;font-weight:600;display:none}
 .form-status.ok{display:block;background:color-mix(in srgb,var(--ok) 15%,transparent);border:1px solid var(--ok)}
+#contactForm{position:relative}
+.sent{position:absolute;inset:0;z-index:5;border-radius:inherit;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;gap:10px}
+.sent.show{display:flex;animation:pop .35s ease}
+.sent .tick{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--ok) 18%,transparent);border:2px solid var(--ok);color:var(--ok)}
+.sent .tick svg{width:36px;height:36px;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .6s .2s ease forwards}
+.sent h3{margin:6px 0 0;font-size:1.35rem}
+.sent p{margin:0;color:var(--muted);max-width:420px}
 .form-status h3{margin:0 0 6px;font-size:1.05rem}
 .form-status p{margin:4px 0 0;font-weight:500;color:var(--muted)}
 #mailFallback{margin-top:12px}
@@ -773,6 +780,12 @@ linkedin.com/in/gorap-kumar-da | github.com/gorap50">
         <button class="btn primary" type="submit" id="sendBtn"><span class="spinner" aria-hidden="true"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg><span id="sendTxt">Send message</span></button>
         <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
         <a class="btn" id="mailFallback" hidden>Send with my email app instead</a>
+        <div class="sent" id="sentPanel" role="status" aria-live="polite" tabindex="-1">
+          <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <h3 id="sentTitle">Message sent!</h3>
+          <p id="sentText">Thank you for reaching out. I'll get back to you within 1–2 business days.</p>
+          <button class="btn" type="button" id="sendAnother">Send another message</button>
+        </div>
         <p class="form-note">Your message goes straight to my inbox. Your details are only used to reply to you.</p>
       </form>
     </div>
@@ -925,6 +938,7 @@ linkedin.com/in/gorap-kumar-da | github.com/gorap50">
   var fallback=$('#mailFallback');
   function mailtoLink(d){return 'mailto:'+EM+'?subject='+encodeURIComponent('Portfolio: '+d.topic+' – '+d.name)+'&body='+encodeURIComponent(d.message+'\n\n— '+d.name+(d.company?' ('+d.company+')':'')+'\n'+d.email)}
   function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  $('#sendAnother').addEventListener('click',function(){$('#sentPanel').classList.remove('show');status.className='form-status';status.innerHTML='';$('#f-name').focus()});
   form.addEventListener('submit',function(ev){ev.preventDefault();status.className='form-status';status.innerHTML='';fallback.hidden=true;
     if(!validate()){var first=form.querySelector('[aria-invalid="true"]');if(first)first.focus();return}
     var data={};new FormData(form).forEach(function(v,k){data[k]=v});
@@ -933,13 +947,16 @@ linkedin.com/in/gorap-kumar-da | github.com/gorap50">
       status.innerHTML='<h3>Your message could not be sent</h3><p>'+esc(reason)+'</p><p>You can still reach me directly at <a href="mailto:'+EM+'">'+EM+'</a>.</p>';
       fallback.href=mailtoLink(data);fallback.hidden=false}
     if(location.protocol==='file:'){fail('The form only works on the live website (https://gorap50.github.io), not when the file is opened from your computer.');return}
-    send.classList.add('sending');send.disabled=true;$('#sendTxt').textContent='Sending…';
+    send.classList.add('sending');send.disabled=true;$('#sendTxt').textContent='Sending… please wait';
     fetch('https://formsubmit.co/ajax/'+EM,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
       .then(function(r){return r.json().catch(function(){return {}}).then(function(j){if(!r.ok||String(j.success)!=='true')throw new Error(j.message||'The mail service did not accept the message.');return j})})
       .then(function(){var first=esc(data.name.split(' ')[0]);
-        status.className='form-status ok';
-        status.innerHTML='<h3>Thank you, '+first+' — your message has been received.</h3><p>I read every message personally and will get back to you at <strong>'+esc(data.email)+'</strong> within 1–2 business days. A confirmation email is on its way to your inbox.</p>';
-        form.reset();$('#c-msg').textContent='0 / 1500';status.focus&&status.setAttribute('tabindex','-1');status.focus()})
+        $('#sentTitle').innerHTML='Thank you, '+first+'! Your message has been sent.';
+        $('#sentText').innerHTML='I read every message personally and will reply to <strong>'+esc(data.email)+'</strong> within 1–2 business days. A confirmation email is on its way to your inbox.';
+        var sp=$('#sentPanel');sp.classList.add('show');
+        form.reset();$('#c-msg').textContent='0 / 1500';
+        showToast('✓ Message sent successfully');
+        form.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});setTimeout(function(){sp.focus()},400)})
       .catch(function(e){fail(/activat/i.test(e.message)?'The contact form is being set up. Please use the button below or email me directly.':(e.message||'Network error.'))})
       .then(function(){send.classList.remove('sending');send.disabled=false;$('#sendTxt').textContent='Send message'})});
 
