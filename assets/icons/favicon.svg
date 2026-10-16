@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .led{animation:led 1.6s ease-in-out infinite;transform-origin:32px 6.5px}
+    .scan{animation:scan 2.4s ease-in-out infinite}
+    .eyes{animation:blink 4s infinite;transform-origin:32px 31px}
+    .node{animation:node 2.4s ease-in-out infinite}
+    .node.n2{animation-delay:.3s}.node.n3{animation-delay:.6s}
+    @keyframes led{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+    @keyframes scan{0%,100%{transform:translateY(0)}50%{transform:translateY(13px)}}
+    @keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.15)}}
+    @keyframes node{0%,100%{fill:#2dd4bf}50%{fill:#fbbf24}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+  </style>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10224a"/><stop offset="1" stop-color="#070e1c"/></linearGradient>
+    <linearGradient id="head" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b335e"/><stop offset="1" stop-color="#0d1a33"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2dd4bf" stop-opacity="0"/><stop offset="1" stop-color="#2dd4bf" stop-opacity=".55"/></linearGradient>
+    <clipPath id="visor"><rect x="15" y="22" width="34" height="18" rx="6"/></clipPath>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- antenna -->
+  <path d="M32 9v5" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round"/>
+  <circle class="led" cx="32" cy="6.5" r="3.2" fill="#fbbf24" filter="url(#glow)"/>
+  <!-- ears -->
+  <rect x="6" y="26" width="5" height="12" rx="2" fill="#2dd4bf"/>
+  <rect x="53" y="26" width="5" height="12" rx="2" fill="#2dd4bf"/>
+  <!-- head -->
+  <rect x="10" y="14" width="44" height="38" rx="11" fill="url(#head)" stroke="#2dd4bf" stroke-width="2.5"/>
+  <!-- visor with GK -->
+  <rect x="15" y="22" width="34" height="18" rx="6" fill="#050b17"/>
+  <g clip-path="url(#visor)">
+    <g class="eyes"><text x="32" y="36.2" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif" font-weight="800" font-size="13.5" letter-spacing="-.3" fill="#5eead4" filter="url(#glow)">GK</text></g>
+    <rect class="scan" x="15" y="15" width="34" height="9" fill="url(#beam)"/>
+  </g>
+  <!-- neural-net mouth -->
+  <path d="M22 46h20" stroke="#2dd4bf" stroke-width="1.6" opacity=".7"/>
+  <circle class="node" cx="22" cy="46" r="2.3" fill="#2dd4bf"/>
+  <circle class="node n2" cx="32" cy="46" r="2.3" fill="#2dd4bf"/>
+  <circle class="node n3" cx="42" cy="46" r="2.3" fill="#2dd4bf"/>
+</svg>
